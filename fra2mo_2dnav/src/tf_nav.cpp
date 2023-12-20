@@ -181,6 +181,34 @@ void TF_NAV::goal4_listener() {
     }    
 }
 
+void TF_NAV::goal5_listener() {
+    ros::Rate r( 1 );
+    tf::TransformListener listener;
+    tf::StampedTransform transform;
+
+    while ( ros::ok() )
+    {
+        try
+        {
+            listener.waitForTransform( "map", "goal5", ros::Time( 0 ), ros::Duration( 10.0 ) );
+            listener.lookupTransform( "map", "goal5", ros::Time( 0 ), transform );
+        }
+        catch( tf::TransformException &ex )
+        {
+            ROS_ERROR("%s", ex.what());
+            r.sleep();
+            continue;
+        }
+
+        goal2_pos << transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z();
+        goal2_or << transform.getRotation().w(),  transform.getRotation().x(), transform.getRotation().y(), transform.getRotation().z();
+        
+        ROS_INFO("Goal Position: %f %f %f", goal5_pos[0], goal5_pos[1], goal5_pos[2]);
+        ROS_INFO("Goal Orientation: %f %f %f %f", goal5_or[0], goal5_or[1], goal5_or[2], goal5_or[3]);
+        r.sleep();
+    }    
+}
+
 void TF_NAV::send_goal() {
     ros::Rate r( 5 );
     int cmd;
@@ -194,31 +222,130 @@ void TF_NAV::send_goal() {
         std::cin>>cmd;
 
         if ( cmd == 1) {
-            MoveBaseClient ac("move_base", true);
-            while(!ac.waitForServer(ros::Duration(5.0))){
-            ROS_INFO("Waiting for the move_base action server to come up");
+            MoveBaseClient ac1("move_base", true);
+            while(!ac1.waitForServer(ros::Duration(5.0))){
+            ROS_INFO("Waiting");
             }
             goal.target_pose.header.frame_id = "map";
             goal.target_pose.header.stamp = ros::Time::now();
             
-            goal.target_pose.pose.position.x = _goal_pos[0];
-            goal.target_pose.pose.position.y = _goal_pos[1];
-            goal.target_pose.pose.position.z = _goal_pos[2];
+ 
+            goal.target_pose.pose.position.x = goal3_pos[0];
+            goal.target_pose.pose.position.y = goal3_pos[1];
+            goal.target_pose.pose.position.z = goal3_pos[2];
 
-            goal.target_pose.pose.orientation.w = _goal_or[0];
-            goal.target_pose.pose.orientation.x = _goal_or[1];
-            goal.target_pose.pose.orientation.y = _goal_or[2];
-            goal.target_pose.pose.orientation.z = _goal_or[3];
+            goal.target_pose.pose.orientation.w = goal3_or[0];
+            goal.target_pose.pose.orientation.x = goal3_or[1];
+            goal.target_pose.pose.orientation.y = goal3_or[2];
+            goal.target_pose.pose.orientation.z = goal3_or[3];
 
-            ROS_INFO("Sending goal");
-            ac.sendGoal(goal);
+            ROS_INFO("Sending goal 3");
+            ac1.sendGoal(goal);
 
-            ac.waitForResult();
+            ac1.waitForResult();
 
-            if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-            ROS_INFO("The mobile robot arrived in the TF goal");
+            if(ac1.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                ROS_INFO("Arrived in the TF goal 3");
+            else{
+                ROS_INFO("Failed to move");
+                break;  
+            }
+
+
+            MoveBaseClient ac2("move_base", true);
+            while(!ac2.waitForServer(ros::Duration(5.0))){
+            ROS_INFO("Waiting");
+            }
+            goal.target_pose.pose.position.x = goal4_pos[0];
+            goal.target_pose.pose.position.y = goal4_pos[1];
+            goal.target_pose.pose.position.z = goal4_pos[2];
+
+            goal.target_pose.pose.orientation.w = goal4_or[0];
+            goal.target_pose.pose.orientation.x = goal4_or[1];
+            goal.target_pose.pose.orientation.y = goal4_or[2];
+            goal.target_pose.pose.orientation.z = goal4_or[3];
+
+            ROS_INFO("Sending goal 4");
+            ac2.sendGoal(goal);
+
+            ac2.waitForResult();
+
+            if(ac2.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                ROS_INFO("Arrived in the TF goal 3");
             else
-                ROS_INFO("The base failed to move for some reason");
+                ROS_INFO("Failed to move");
+
+
+    
+            MoveBaseClient ac3("move_base", true);
+            while(!ac3.waitForServer(ros::Duration(5.0))){
+            ROS_INFO("Waiting");
+            }
+            goal.target_pose.pose.position.x = goal2_pos[0];
+            goal.target_pose.pose.position.y = goal2_pos[1];
+            goal.target_pose.pose.position.z = goal2_pos[2];
+
+            goal.target_pose.pose.orientation.w = goal2_or[0];
+            goal.target_pose.pose.orientation.x = goal2_or[1];
+            goal.target_pose.pose.orientation.y = goal2_or[2];
+            goal.target_pose.pose.orientation.z = goal2_or[3];
+
+            ROS_INFO("Sending goal 2");
+            ac3.sendGoal(goal);
+
+            ac3.waitForResult();
+
+            if(ac3.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                ROS_INFO("Arrived in the TF goal 2");
+            else
+                ROS_INFO("Failed to move");
+
+
+            MoveBaseClient ac4("move_base", true);
+            while(!ac4.waitForServer(ros::Duration(5.0))){
+            ROS_INFO("Waiting");
+            }
+            goal.target_pose.pose.position.x = goal1_pos[0];
+            goal.target_pose.pose.position.y = goal1_pos[1];
+            goal.target_pose.pose.position.z = goal1_pos[2];
+
+            goal.target_pose.pose.orientation.w = goal1_or[0];
+            goal.target_pose.pose.orientation.x = goal1_or[1];
+            goal.target_pose.pose.orientation.y = goal1_or[2];
+            goal.target_pose.pose.orientation.z = goal1_or[3];
+
+            ROS_INFO("Sending goal 1");
+            ac4.sendGoal(goal);
+
+            ac4.waitForResult();
+
+            if(ac4.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                ROS_INFO("Arrived in the TF goal 1");
+            else
+                ROS_INFO("Failed to move");
+                
+            MoveBaseClient ac5("move_base", true);
+            while(!ac5.waitForServer(ros::Duration(5.0))){
+            ROS_INFO("Waiting");
+            }
+            goal.target_pose.pose.position.x = goal5_pos[0];
+            goal.target_pose.pose.position.y = goal5_pos[1];
+            goal.target_pose.pose.position.z = goal5_pos[2];
+
+            goal.target_pose.pose.orientation.w = goal5_or[0];
+            goal.target_pose.pose.orientation.x = goal5_or[1];
+            goal.target_pose.pose.orientation.y = goal5_or[2];
+            goal.target_pose.pose.orientation.z = goal5_or[3];
+
+            ROS_INFO("Sending goal 5");
+            ac4.sendGoal(goal);
+
+            ac4.waitForResult();
+
+            if(ac4.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                ROS_INFO("Arrived in the TF goal 5");
+            else
+                ROS_INFO("Failed to move");
         }
         else if ( cmd == 2 ) {
             MoveBaseClient ac("move_base", true);
@@ -257,8 +384,12 @@ void TF_NAV::send_goal() {
 
 void TF_NAV::run() {
     boost::thread tf_listener_fun_t( &TF_NAV::tf_listener_fun, this );
-    boost::thread tf_listener_goal_t( &TF_NAV::goal_listener, this );
-    boost::thread send_goal_t( &TF_NAV::send_goal, this );
+    boost::thread tf_listener_goal1_t( &TF_NAV::goal1_listener, this );
+    boost::thread tf_listener_goal2_t( &TF_NAV::goal2_listener, this );
+    boost::thread tf_listener_goal3_t( &TF_NAV::goal3_listener, this );
+    boost::thread tf_listener_goal4_t( &TF_NAV::goal4_listener, this );
+    boost::thread tf_listener_goal5_t( &TF_NAV::goal5_listener, this );
+    boost::thread send_goal_t( &TF_NAV::send_goal, this ); 
     ros::spin();
 }
 

@@ -17,6 +17,7 @@ class TF_NAV {
         void goal2_listener();
         void goal3_listener();
         void goal4_listener();
+        void goal5_listener();
         void send_goal();
 
     private:
@@ -44,7 +45,11 @@ class TF_NAV {
          Eigen::Vector4d goal3_or;    
          
          Eigen::Vector3d goal4_pos;
-         Eigen::Vector4d goal4_or;     
+         Eigen::Vector4d goal4_or;   
+         
+         Eigen::Vector3d goal5_pos;
+         Eigen::Vector4d goal5_or;     
+  
 
 
 };
